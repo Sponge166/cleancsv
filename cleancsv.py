@@ -210,10 +210,10 @@ def main():
 
 	writer.close()
 
-	success_message = '''
+	fairwell_message = '''
 	Your csv has been successfully cleaned and converted to an excel file!
 	Did this save you a lot of time? If so please consider tipping the developer.
 	Venmo: @ClarkMattoon'''
 
-	print(success_message)
+	print(fairwell_message)
 main()
