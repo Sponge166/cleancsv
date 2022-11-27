@@ -94,9 +94,14 @@ def widen_cols(writerinfo: WriterInfo,
 def freeze(writerinfo: WriterInfo):
 	writerinfo.writer.sheets[writerinfo.sheet_name].freeze_panes(writerinfo.startrow+1, writerinfo.startcol+2)
 
-def verify_dest(dest: str | Path) -> Path | None:
+def verify_dest(dest: str | Path, source: str | Path) -> Path | None:
+	if dest is None:
+		return Path(source.parent, f'{source.stem}_cleaned.xlsx')
+
 	p = Path(dest)
-	if p.suffix not in {'.xlsx', '.xls', '.xlsm'}:
+	if not p.suffix:
+		p = Path(p, f'{source.stem}_cleaned.xlsx')
+	elif p.suffix not in {'.xlsx', '.xls', '.xlsm'}:
 		raise ValueError('Destination file must be an excel file: ends with ".xlsx" or ".xls" or ".xlsm"')
 	return p
 
@@ -126,14 +131,16 @@ def main():
 
 	parser = my_ArgumentParser(description="Clean csv from source and save in destination")
 	parser.add_argument('source', type=str)
-	parser.add_argument('dest', type=str)
+	parser.add_argument('-d', '--dest', default=None, type=str, required=False, help="-d, --dest [desired destination]")
 	parser.add_argument('-sn', default='newly_cleaned', type=str, required=False, help="-sn [desired sheet_name]")
 	parser.add_argument('-sr', default=1, type=int, required=False, help="-sr [desired start_row]")
 	parser.add_argument('-sc', default=2, type=int, required=False, help="-sc [desired start_col]")
 
 	args = parser.parse_args()
 	source = verify_source(args.source)
-	dest = verify_dest(args.dest)
+	dest = verify_dest(args.dest, source)
+
+	print(dest)
 
 	unclean_df = pd.read_csv(source)
 	cleaned_df = create_clean_table(unclean_df, COL_ORDER)
